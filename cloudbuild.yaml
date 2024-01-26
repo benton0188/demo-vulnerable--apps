@@ -1,0 +1,25 @@
+steps:
+- id: "Download SP"
+  name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  script: gsutil -i cc-source-protector@cc-sp-pp.iam.gserviceaccount.com cp gs://sourceprotect/releases/LATEST/linux_amd64/cli .
+- id: "Call SP npm"
+  name: node
+  env:
+  - 'CI=true'
+  script: |
+    chmod +x ./cli
+    ./cli npm
+- id: "Call SP maven"
+  name: maven
+  env:
+  - 'CI=true'
+  script: |
+    chmod +x ./cli
+    ./cli maven
+- id: "Call SP golang"
+  name: golang
+  env:
+  - 'CI=true'
+  script: |
+    chmod +x ./cli
+    ./cli golang

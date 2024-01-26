@@ -1,0 +1,6 @@
+version: v1alpha1
+vulnerabilities:
+  maximumFixableSeverity: MEDIUM
+  maximumUnfixableSeverity: MEDIUM
+licenses:
+  allow: [Apache-*, "0BSD", BSD-*, "MIT", "ISC"]

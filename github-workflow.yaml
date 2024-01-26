@@ -1,0 +1,58 @@
+# See go/sp-gha-setup for more info on how to setup Source Protect in your Github workflows
+
+# This would normally exist in a directory somewhere like `${PROJECT_ROOT}/.github/workflows`
+name: source protect
+
+# Triggers the workflow on push or pull request events
+on: [push, pull_request]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  source-protect:
+    name: source protect
+    runs-on: ubuntu-latest
+    steps:
+    # This example workflow uses an action to setup go. See the following for
+    # example actions that can help setup your environment.
+    # https://github.com/actions/setup-go
+    # https://github.com/actions/setup-node
+    # https://github.com/actions/setup-java
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.20.*
+      id: go
+
+    - name: Check out code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    # See https://github.com/google-github-actions/auth for more info
+    # See https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions
+    # for an in-depth guide on setting up auth using Github and your GCP Project
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        workload_identity_provider: 'projects/42999624418/locations/global/workloadIdentityPools/github/providers/github'
+        service_account: 'github@source-protect-gh.iam.gserviceaccount.com'
+
+    # See https://github.com/google-github-actions/setup-gcloud for more info
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1.1.0'
+      with:
+        version: '>= 363.0.0'
+
+    # NOTE: This will simply be a curl command in the future
+    - name: Download source protect
+      run: |
+        gsutil -i cc-source-protector@cc-sp-pp.iam.gserviceaccount.com cp gs://sourceprotect/releases/LATEST/linux_amd64/cli ./cc-sp && chmod +x ./cc-sp
+
+    - name: Run source project
+      run: |
+        ./cc-sp
